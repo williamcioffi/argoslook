@@ -93,12 +93,15 @@ server <- function(input, output) {
 		
 		if(!is.null(behaviorfname)) {
 			behavior <- read.table(behaviorfname$datapath, header = TRUE, sep = ',')
+			behavior$Start 		<- paste(strptime(behavior$Start, 	format = "%H:%M:%S %d-%b-%Y"), "UTC")
+			behavior$End 			<- paste(strptime(behavior$End, 		format = "%H:%M:%S %d-%b-%Y"), "UTC")
 			bevtaglabels <- paste(behavior$DeployID,behavior $Ptt, sep = " ")
 			taglabels <- c(taglabels, bevtaglabels)
 		}
 		
 		if(!is.null(argosfname)) {
 			argos <- read.table(argosfname$datapath, header = TRUE, sep = ',')
+			argos$Date      <- paste(strptime(argos$Date, format = "%H:%M:%S %d-%b-%Y"), "UTC")
 			argtaglabels <- paste(argos$DeployID, argos$Ptt, sep = " ")
 			taglabels <- c(taglabels, argtaglabels)	
 		}

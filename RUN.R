@@ -36,7 +36,7 @@
 #if you accidentally quit the browser without exiting the app, just hit escape in the R console window to get R back or just exit R.
 
 
-source("guts/argoslook.r")
+source("guts/argoslook.R")
 if(interactive()) {
 shinyApp(ui, server)
 }
