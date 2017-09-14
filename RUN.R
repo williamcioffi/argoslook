@@ -40,3 +40,4 @@ source("guts/argoslook.R")
 if(interactive()) {
 shinyApp(ui, server)
 }
+
