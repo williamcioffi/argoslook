@@ -2,3 +2,7 @@
 .Rhistory
 .Rapp.history
 .DS_Store
+
+# data files
+guts/allzcs.csv
+guts/allgms.csv
