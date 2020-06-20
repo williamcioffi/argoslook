@@ -1,3 +1,6 @@
 # automatically generated files
 .Rapp.history
 .DS_Store
+
+# raw data
+guts/*.csv
