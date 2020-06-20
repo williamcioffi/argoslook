@@ -26,24 +26,24 @@ getdepths <- function(dat) {
 
 gettimes <- function(dat) {
 	dese <- which(dat$What != "Message")
-	as.POSIXct(dat$Start[dese], tz = "GMT")
+	as.POSIXct(dat$Start[dese], '%H:%M:%S %d-%b-%Y', tz = "UTC")
 }
 
 plotdives <- function(ddat, adat) {
 	dese <- which(ddat$what != "Message")
 	dat <- ddat[dese, ]
-	times <- as.POSIXct(dat$startposix, tz = "GMT")
+	times <- as.POSIXct(dat$startposix, '%H:%M:%S %d-%b-%Y', tz = "UTC")
 	
-	zeroday <- as.POSIXct(format(times[1], "%Y-%m-%d"), tz = "GMT")
-	lastday <- as.POSIXct(format(as.Date(times[length(times)]) + 1, "%Y-%m-%d"), tz = "GMT")
-	
-	axistimes <- seq(zeroday, lastday, by = "day")
+	zeroday <- as.POSIXct(format(times[1], "%Y-%m-%d"), tz = "UTC")
+	lastday <- as.POSIXct(format(as.Date(times[length(times)]) + 1, "%Y-%m-%d"), tz = "UTC")
+
+	axistimes <- seq.POSIXt(zeroday, lastday, by = "day")
 	axistimeslabs <- format(axistimes, "%d%h%Y")
 	
-	times_to_average <- cbind(as.POSIXct(dat$startposix, tz = "GMT"),
-		as.POSIXct(dat$endposix, tz = "GMT"))
+	times_to_average <- cbind(as.POSIXct(dat$startposix, '%H:%M:%S %d-%b-%Y', tz = "UTC"),
+		as.POSIXct(dat$endposix, '%H:%M:%S %d-%b-%Y', tz = "UTC"))
 	averaged_times <- apply(times_to_average, 1, mean)
-	times <- as.POSIXct(averaged_times, origin = "1970-01-01", tz = "GMT")
+	times <- as.POSIXct(averaged_times, origin = "1970-01-01", tz = "UTC")
 	par(oma = c(2, 0, 0, 0), las = 1)
 	plot(times, dat$dep, pch = 16, cex = .5, bty = 'n', xlab = "", ylab = "", axes = FALSE, ylim = c(min(dat$dep), max(dat$dep)))
 	axis(2, at = c(0, min(ddat$dep, na.rm = TRUE)), label = NA, tcl = 0)
@@ -52,21 +52,21 @@ plotdives <- function(ddat, adat) {
 	# axis.POSIXct(1, at = halfdayaxistimes, labels = NA, mgp = c(0, 0, 0.75))
 	if(!is.null(adat)) {
 		badies <- which(adat$locationquality %in% c("", "A", "B", "Z"))
-		argostimes <- as.POSIXct(adat$date, tz = "GMT")
+		argostimes <- as.POSIXct(adat$date, '%H:%M:%S %d-%b-%Y', tz = "UTC")
 		axis.POSIXct(1, at = argostimes[badies], labels = NA, tcl = 1.25, col = neonemph(1), col.axis = nitro(1), mgp = c(0, 0, 0.75))
 		axis.POSIXct(1, at = argostimes[-badies], labels = NA, tcl = 1.25, mgp = c(0, 0, 0.75))
 		axis.POSIXct(1, at = argostimes, labels = NA, tcl = 0, mgp = c(0, 0, 0.75))
 	}
 	getgaps <- calculategaps(ddat)
 	rect(
-		as.POSIXct(getgaps$gaptimes_start, tz = "GMT"), min(ddat$dep, na.rm = TRUE),
-		as.POSIXct(getgaps$gaptimes_end, tz = "GMT"), 0,
+		as.POSIXct(getgaps$gaptimes_start, '%H:%M:%S %d-%b-%Y', tz = "UTC"), min(ddat$dep, na.rm = TRUE),
+		as.POSIXct(getgaps$gaptimes_end, '%H:%M:%S %d-%b-%Y', tz = "UTC"), 0,
 		col = nitro(.25), border = NA
 	)
 		
 	curtime <- Sys.time()
-	curtime_gmt <- format(curtime, tz = "GMT")
-	prev48hour <- as.POSIXct(curtime_gmt, tz = "GMT") - 60*60*48
+	curtime_UTC <- format(curtime, tz = "UTC")
+	prev48hour <- as.POSIXct(curtime_UTC, tz = "UTC") - 60*60*48
 	abline(v = prev48hour, lty = 2, col = "purple")
 }
 
@@ -243,7 +243,7 @@ makegapstatstab <- function(ddat) {
 
 prepargos <- function(arg) {
 	names(arg) <- tolower(names(arg))
-	dates <- paste(arg$date, "GMT", sep = " ")
+	dates <- paste(arg$date, "UTC", sep = " ")
 	arg$date <- dates
 	arg[order(arg$date), ]
 	arg[, c('ptt', 'date', 'longitude', 'latitude', 'locationquality', 'satellite', 'power')]
@@ -251,11 +251,11 @@ prepargos <- function(arg) {
 
 prepbehavior <- function(bev) {
 	names(bev) <- tolower(names(bev))
-	starts <- paste(bev$start, "GMT", sep = " ")
-	ends <- paste(bev$end, "GMT", sep = " ")
+	starts <- paste(bev$start, "UTC", sep = " ")
+	ends <- paste(bev$end, "UTC", sep = " ")
 	bev[, 'startposix'] <- as.character(starts)
 	bev[, 'endposix'] <- as.character(ends)
-	bev <- bev[order(starts), ]
+	# bev <- bev[order(starts), ]
 	depth <- -bev$depthmax
 	depth[which(bev$what == "Surface")] <- 0
 	bev[, 'dep'] <- depth
@@ -277,8 +277,8 @@ calculategaps <- function(ddat) {
 	intervals_ends <- as.character(message_end)
 	intervals_starts <- as.character(message_start)
 	
-	intervals_ends <- as.POSIXct(intervals_ends, tz = "GMT")
-	intervals_starts <- as.POSIXct(intervals_starts, tz = "GMT")
+	intervals_ends <- as.POSIXct(intervals_ends, '%H:%M:%S %d-%b-%Y', tz = "UTC")
+	intervals_starts <- as.POSIXct(intervals_starts, '%H:%M:%S %d-%b-%Y', tz = "UTC")
 	
 	en <- length(intervals_ends)
 	
